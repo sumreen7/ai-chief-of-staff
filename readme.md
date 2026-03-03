@@ -18,7 +18,7 @@ An always-on, multi-agent AI productivity assistant built with **n8n**, **Claude
 
 ## 🏗️ Tech Stack
 
-- **Automation:** [n8n](https://n8n.io) (self-hosted on Oracle Cloud Free Tier)
+- **Automation:** [n8n](https://n8n.io) (self-hosted on Railway free Cloud)
 - **AI Model:** [Claude API](https://console.anthropic.com) (Anthropic)
 - **Email:** Gmail API
 - **Calendar:** Google Calendar API
@@ -55,7 +55,7 @@ ai-chief-of-staff/
 ## 🚀 Setup Guide
 
 ### Prerequisites
-- Oracle Cloud free account (or any Ubuntu server)
+- Railway Cloud free account (or any Ubuntu server)
 - Google Cloud account (for Gmail + Calendar APIs)
 - Slack workspace
 - Notion account
