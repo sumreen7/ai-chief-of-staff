@@ -1,0 +1,172 @@
+{
+    "name": "Email Triage Agent",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 30
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          0,
+          0
+        ],
+        "id": "1b46d3c9-e01d-4515-a89d-0ae69de6f450",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 10,
+          "filters": {
+            "readStatus": "unread"
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          208,
+          0
+        ],
+        "id": "b86dcaf9-d55d-4f70-8787-5548b11b4431",
+        "name": "Get many messages",
+        "webhookId": "afef4fb8-0dde-411a-a108-03a527be3d09",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "ITRfjcfMRsmEMXmo",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.groq.com/openai/v1/chat/completions",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an email triage assistant. Analyze the email and reply with ONLY a single word: High, Medium, or Low. Nothing else. No punctuation, no explanation.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"From: {{ $json.From }}\\nSubject: {{ $json.Subject }}\\nBody: {{ $json.snippet }}\"\n    }\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          416,
+          0
+        ],
+        "id": "e95aeaee-1f6a-44b4-8f80-8924d383d6d1",
+        "name": "HTTP Request",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "65rQyfAfQza3pEnm",
+            "name": "Header Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "databaseId": {
+            "__rl": true,
+            "value": "31850f1a527880d7ab65fab970cde697",
+            "mode": "id"
+          },
+          "propertiesUi": {
+            "propertyValues": [
+              {
+                "key": "Task|title",
+                "title": "={{ $('Get many messages').item.json.Subject }}"
+              },
+              {
+                "key": "Priority|select",
+                "selectValue": "={{ $('HTTP Request').item.json.choices[0].message.content }}"
+              },
+              {
+                "key": "Source|select",
+                "selectValue": "=Email"
+              },
+              {
+                "key": "Status|select",
+                "selectValue": "=To Do"
+              },
+              {
+                "key": "Due Date|date"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          848,
+          0
+        ],
+        "id": "3622a306-418f-4c7f-8a11-732a3c49dff3",
+        "name": "Create a database page1",
+        "credentials": {
+          "notionApi": {
+            "id": "URvN51nUo0CJIcdA",
+            "name": "Notion account"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get many messages",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many messages": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Create a database page1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "versionId": "1fbb58e4-6533-45a0-967a-d2d3b6b61f0e",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "15455c98984e0e864a78647b4df04b05b7b445706a88ebfe96411e24180fc34e"
+    },
+    "id": "F9Z3l7OTfADkDeVo",
+    "tags": []
+  }
