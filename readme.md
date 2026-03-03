@@ -18,7 +18,8 @@ An always-on, multi-agent AI productivity assistant built with **n8n**, **Claude
 
 ## 🏗️ Tech Stack
 
-- **Automation:** [n8n](https://n8n.io) (self-hosted on Railway free Cloud)
+- **Automation:** [n8n](https://n8n.io) (self-hosted on Railway)
+- **n8n Dashboard:** https://n8n-production-624fe.up.railway.app
 - **AI Model:** [Claude API](https://console.anthropic.com) (Anthropic)
 - **Email:** Gmail API
 - **Calendar:** Google Calendar API
@@ -55,7 +56,7 @@ ai-chief-of-staff/
 ## 🚀 Setup Guide
 
 ### Prerequisites
-- Railway Cloud free account (or any Ubuntu server)
+- Oracle Cloud free account (or any Ubuntu server)
 - Google Cloud account (for Gmail + Calendar APIs)
 - Slack workspace
 - Notion account
@@ -94,7 +95,7 @@ _Coming soon as each agent is built._
 ## 🛣️ Roadmap
 
 - [x] Project setup & documentation
-- [ ] Phase 1 — n8n on Oracle Cloud
+- [x] Phase 1 — n8n on Railway ✅
 - [ ] Phase 2 — Connect Gmail, Calendar, Slack, Notion
 - [ ] Phase 3 — Email Triage Agent
 - [ ] Phase 4 — Calendar Agent
