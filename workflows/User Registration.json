@@ -1,0 +1,266 @@
+{
+  "name": "User Registration",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "register",
+        "options": {
+          "responseCode": {
+            "values": {}
+          },
+          "responseData": "✅ Registering you now..."
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fdb84b10-11d1-4dbb-a5b7-8badbab96b38",
+      "name": "Webhook",
+      "webhookId": "fbd94a09-4922-427c-8225-fadd0b7d4cc6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fd9fb978-52e7-4841-9d11-e843439bd339",
+              "leftValue": "={{ $items().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "92eb582d-7f0e-40e2-a8cc-a0be1f6d2e77",
+      "name": "If",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "https://www.notion.so/31950f1a527880899016d16a12dcc6f3?v=31950f1a527880339f16000cabc23e56",
+          "mode": "url"
+        },
+        "title": "AI CoS Users",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "={{ $json.body.user_name }}"
+            },
+            {
+              "key": "={{ $json.body.user_id }}"
+            },
+            {
+              "key": "={{ $now.format('yyyy-MM-dd') }}"
+            },
+            {
+              "key": "Active|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        96
+      ],
+      "id": "ebd6f0ce-4184-4587-ae7b-ba6bb4482ccb",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "URvN51nUo0CJIcdA",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $('Webhook').item.json.body.user_id }}",
+          "mode": "id"
+        },
+        "text": "=Welcome to AI Chief of Staff! 🎉  \nYou're now registered and will receive: \n☀️ Daily briefing every morning at 8 AM \n📅 Meeting reminders 30 mins before \n✅ Task summary every evening at 6 PM  \n\nType /briefing, /schedule, /tasks or /emails anytime!",
+        "otherOptions": {
+          "ephemeral": "=Welcome to AI Chief of Staff! 🎉\n\nYou're now registered and will receive:\n☀️ Daily briefing every morning at 8 AM\n📅 Meeting reminders 30 mins before\n✅ Task summary every evening at 6 PM\n\nType /briefing, /schedule, /tasks or /emails anytime! "
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        864,
+        96
+      ],
+      "id": "6fcc6ef4-b76d-4178-bb4e-9ed3421bc87a",
+      "name": "Send a message",
+      "webhookId": "3a8cfc88-46de-4dcf-9680-36ab8756bfaa",
+      "credentials": {
+        "slackApi": {
+          "id": "rU9t2xxnugStvjNv",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $('Webhook').item.json.body.user_id }}",
+          "mode": "id"
+        },
+        "text": "=You're already registered! 😊 \nType /briefing, /schedule, /tasks or /emails anytime!",
+        "otherOptions": {
+          "ephemeral": "=You're already registered! 😊\nType /briefing, /schedule, /tasks or /emails anytime!"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        656,
+        -80
+      ],
+      "id": "91df4079-b404-4da0-b74e-e8451d2e022f",
+      "name": "Send a message1",
+      "webhookId": "eb3e081f-e3ae-4acb-9264-4118bd47ae1c",
+      "credentials": {
+        "slackApi": {
+          "id": "rU9t2xxnugStvjNv",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "https://www.notion.so/31950f1a527880899016d16a12dcc6f3?v=31950f1a527880339f16000cabc23e56",
+          "mode": "url"
+        },
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Slack ID|rich_text",
+              "condition": "equals",
+              "richTextValue": "={{ $json.body.user_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "219c3b43-7ed4-42da-bed2-c09761ce4b4a",
+      "name": "Get many database pages",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "URvN51nUo0CJIcdA",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "99acb583-9755-4cbf-b872-3311e3c8327b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d380d96394d0f1f4344b156faca73c3c76f8fa798ef405863508c43d97e10374"
+  },
+  "id": "Df9jQ47o8hf6qeG4",
+  "tags": []
+}
