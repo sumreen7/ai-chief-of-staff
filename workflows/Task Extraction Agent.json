@@ -1,0 +1,285 @@
+{
+  "name": "Task Extraction Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "00a8a80d-1424-4e3f-b244-60730b24fd43",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "filters": {
+          "labelIds": [
+            "UNREAD"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "84b6360f-4fa5-46c1-8873-1d679f5845a6",
+      "name": "Get many messages",
+      "webhookId": "731de025-b1c0-4aca-914d-78da3706164c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ITRfjcfMRsmEMXmo",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a task extraction assistant. Analyze the email and decide if it contains a real, personal action item that requires the recipient to do something specific.\\n\\nRespond with NO_TASKS if the email is:\\n- Promotional or marketing material\\n- A newsletter or digest\\n- An automated system notification\\n- A scholarship, opportunity, or offer the user did not explicitly sign up for\\n- A welcome or onboarding email\\n- A security alert that requires no action\\n- Any mass email or bulk communication\\n\\nOnly extract a task if the email is:\\n- From a real person requesting something specific\\n- A deadline or meeting that needs a response\\n- A direct request with a clear action required\\n\\nIf it is a real task respond with ONLY this format:\\nTASK: [task name, max 10 words]\\nPRIORITY: [High, Medium, or Low]\\nDESCRIPTION: [2 sentences max explaining what needs to be done and any important context]\\nFROM: [sender name or email]\\n\\nOtherwise respond with ONLY: NO_TASKS\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"From: {{ $json.From }}\\nSubject: {{ $json.Subject }}\\nBody: {{ $json.snippet }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "bf31f62a-526b-4e94-aa66-7edd96267bf6",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "65rQyfAfQza3pEnm",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "31850f1a527880d7ab65fab970cde697",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Task|title",
+              "title": "={{ $json.choices[0].message.content.split('\\n')[0].replace('TASK: ', '').trim() }}"
+            },
+            {
+              "key": "Priority|select",
+              "selectValue": "={{ $json.choices[0].message.content.split('\\n')[1].replace('PRIORITY: ', '').trim() }}"
+            },
+            {
+              "key": "Source|select",
+              "selectValue": "=Email"
+            },
+            {
+              "key": "Status|select",
+              "selectValue": "=To Do"
+            },
+            {
+              "key": "Description|rich_text",
+              "textContent": "={{ $json.choices[0].message.content.split('\\n')[2].replace('DESCRIPTION: ', '').trim() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "412bcb0a-67f3-46c6-96a8-f0121775be11",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "URvN51nUo0CJIcdA",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d7be1745-8a65-4f01-9ab4-bbedb405b74b",
+              "leftValue": "={{ $json.choices[0].message.content.trim() }}",
+              "rightValue": "NO_TASKS",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "ece18102-e7dd-4c6f-86b7-a4ef69cc734a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Get many messages').item.json.id }}",
+        "labelIds": [
+          "Label_8325049963376950836"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "53d4ab0e-ec54-499b-bdf1-e230fb199c70",
+      "name": "Add label to message",
+      "webhookId": "4f61fd39-f3b4-4131-a0b5-d691e1d53d91",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ITRfjcfMRsmEMXmo",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Get many messages').item.json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "4bb63630-a57b-437b-bac7-dbd13362773c",
+      "name": "Mark a message as read",
+      "webhookId": "03faefa9-d37e-478f-bbf2-d3b4162af623",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ITRfjcfMRsmEMXmo",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f32ea367-f0ee-4762-b92e-604967b9be23",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "15455c98984e0e864a78647b4df04b05b7b445706a88ebfe96411e24180fc34e"
+  },
+  "id": "ncokh8lISxuLV9ZX",
+  "tags": []
+}

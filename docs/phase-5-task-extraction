@@ -1,0 +1,43 @@
+# Phase 5 — Task Extraction Agent
+
+## Overview
+Reads Gmail every hour, uses Groq AI to identify real action items, and automatically creates tasks in Notion. Skips promotional, junk, and automated emails.
+
+## Workflow
+Schedule Trigger (every hour) → Get Many Messages (Gmail) → HTTP Request (Groq AI) → If Node (filter NO_TASKS) → Create Database Page (Notion) → Add Label (Gmail) → Mark as Read (Gmail)
+
+## Nodes
+
+### 1. Schedule Trigger
+- Runs every 1 hour
+
+### 2. Get Many Messages (Gmail)
+- Fetches up to 10 unread emails
+- Excludes emails labelled AI-Processed
+
+### 3. HTTP Request (Groq AI)
+- Model: llama-3.3-70b-versatile
+- Extracts: Task, Priority, Description, From
+- Returns NO_TASKS for promotional/junk emails
+
+### 4. If Node
+- Filters out NO_TASKS responses
+- Only passes real tasks to Notion
+
+### 5. Create Database Page (Notion)
+- Database: AI Tasks
+- Fields: Task, Priority, Description, Source (Email), Status (To Do)
+
+### 6. Add Label (Gmail)
+- Adds AI-Processed label to processed emails
+
+### 7. Mark as Read (Gmail)
+- Marks processed emails as read to prevent reprocessing
+
+## Credentials Needed
+- Gmail OAuth
+- Groq API Key
+- Notion API Key
+
+## Status
+✅ Complete and working
