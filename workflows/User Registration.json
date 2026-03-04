@@ -6,10 +6,11 @@
         "httpMethod": "POST",
         "path": "register",
         "options": {
+          "ignoreBots": false,
           "responseCode": {
             "values": {}
           },
-          "responseData": "✅ Registering you now..."
+          "responseData": "⏳ Registering you now..."
         }
       },
       "type": "n8n-nodes-base.webhook",
@@ -20,7 +21,8 @@
       ],
       "id": "fdb84b10-11d1-4dbb-a5b7-8badbab96b38",
       "name": "Webhook",
-      "webhookId": "fbd94a09-4922-427c-8225-fadd0b7d4cc6"
+      "webhookId": "fbd94a09-4922-427c-8225-fadd0b7d4cc6",
+      "executeOnce": true
     },
     {
       "parameters": {
@@ -34,11 +36,12 @@
           "conditions": [
             {
               "id": "fd9fb978-52e7-4841-9d11-e843439bd339",
-              "leftValue": "={{ $items().length }}",
-              "rightValue": 0,
+              "leftValue": "={{ $json.isNewUser }}",
+              "rightValue": "true",
               "operator": {
-                "type": "number",
-                "operation": "equals"
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
               }
             }
           ],
@@ -49,12 +52,13 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        448,
+        672,
         0
       ],
       "id": "92eb582d-7f0e-40e2-a8cc-a0be1f6d2e77",
       "name": "If",
-      "alwaysOutputData": true
+      "alwaysOutputData": false,
+      "executeOnce": true
     },
     {
       "parameters": {
@@ -69,13 +73,16 @@
         "propertiesUi": {
           "propertyValues": [
             {
-              "key": "={{ $json.body.user_name }}"
+              "key": "Name|title",
+              "title": "={{ $('Webhook').item.json.body.user_name }}"
             },
             {
-              "key": "={{ $json.body.user_id }}"
+              "key": "Slack ID|rich_text",
+              "textContent": "={{ $('Webhook').item.json.body.user_id }}"
             },
             {
-              "key": "={{ $now.format('yyyy-MM-dd') }}"
+              "key": "Registered On|date",
+              "date": "={{ $now.format('yyyy-MM-dd') }}"
             },
             {
               "key": "Active|checkbox",
@@ -88,8 +95,8 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        656,
-        96
+        1072,
+        -192
       ],
       "id": "ebd6f0ce-4184-4587-ae7b-ba6bb4482ccb",
       "name": "Create a database page",
@@ -116,8 +123,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.4,
       "position": [
-        864,
-        96
+        1296,
+        -192
       ],
       "id": "6fcc6ef4-b76d-4178-bb4e-9ed3421bc87a",
       "name": "Send a message",
@@ -145,8 +152,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.4,
       "position": [
-        656,
-        -80
+        1072,
+        112
       ],
       "id": "91df4079-b404-4da0-b74e-e8451d2e022f",
       "name": "Send a message1",
@@ -194,6 +201,19 @@
           "name": "Notion account"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst hasUser = items.some(item => item.json.id);\n\nreturn [{\n  json: {\n    isNewUser: !hasUser,\n    user_id: $('Webhook').first().json.body.user_id,\n    user_name: $('Webhook').first().json.body.user_name\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        0
+      ],
+      "id": "1cb6232c-62b6-494a-941e-9191a5f5ea29",
+      "name": "Code in JavaScript"
     }
   ],
   "pinData": {},
@@ -242,6 +262,17 @@
       "main": [
         [
           {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
             "node": "If",
             "type": "main",
             "index": 0
@@ -256,7 +287,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "99acb583-9755-4cbf-b872-3311e3c8327b",
+  "versionId": "881fe9a7-0d9c-4220-97e5-e56617973f8b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "d380d96394d0f1f4344b156faca73c3c76f8fa798ef405863508c43d97e10374"
