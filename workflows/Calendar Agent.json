@@ -1,0 +1,181 @@
+{
+  "name": "Calendar Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0227e4bc-6852-465d-89ff-d3a9ace01791",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "fathimasumreenmasters@gmail.com",
+          "mode": "list",
+          "cachedResultName": "fathimasumreenmasters@gmail.com"
+        },
+        "timeMin": "={{ $now.startOf('day').toISO() }}",
+        "timeMax": "={{ $now.endOf('day').toISO() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "629cc915-0788-4a58-92da-9ab328a728f1",
+      "name": "Get many events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "dqpZRFLijIaMUB1L",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a personal calendar assistant for Fathima. You will receive a list of calendar events with ISO timestamps. Convert all times to a friendly 12-hour format (e.g. 7:30 PM). You MUST include emojis exactly as shown below. Format the schedule using this exact structure:\\n\\nGood morning, Fathima! 👋\\n\\n📅 *Schedule for [Day, Month Date] (e.g. Tuesday, March 3)*\\n\\n🗓 *Events:*\\n- List each event as: [start time] - [end time]: [name] [Meeting] or [Personal Task]\\n\\n⏱ *Total Meeting Time:* X hours Y mins (only count [Meeting] events)\\n\\n🧠 *Free Blocks:* Only show free blocks between 9:00 AM and 9:00 PM that are 1+ hours long. Format as: [start time] - [end time] (X hours). Skip blocks outside these hours.\\n\\n✅ *Summary:* One honest and friendly sentence about the day. Only call it busy if there are 3+ meetings. If there is 1 meeting, call it a light day. If there are no meetings, call it a free day.\\n\\nNever show raw ISO timestamps. Always use 12-hour time format with AM/PM. Always include the actual date in the header. Always include ALL emojis shown above — 👋 📅 🗓 ⏱ 🧠 ✅\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Today is {{ $now.format('cccc, MMMM d') }}. Here are my events: {{ $json.events.map(e => e.summary + ' from ' + e.start.dateTime + ' to ' + e.end.dateTime).join(', ') }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "7004ce2b-ad60-4361-af7a-d5486bf0f6ed",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "65rQyfAfQza3pEnm",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AJGEF7XL4",
+          "mode": "list",
+          "cachedResultName": "briefings"
+        },
+        "text": "={{ $('HTTP Request').item.json.choices[0].message.content }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "0ce5c032-8887-4e8b-9169-924041e51542",
+      "name": "Send a message",
+      "webhookId": "a16686bd-e8f5-425e-9ad3-7cbc18c4a9b6",
+      "credentials": {
+        "slackApi": {
+          "id": "rU9t2xxnugStvjNv",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "events",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "9de41b68-2fab-4aa2-a4e5-7458190fe1da",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "22952884-37e9-4f79-b29c-56bdbc5bcf3b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "15455c98984e0e864a78647b4df04b05b7b445706a88ebfe96411e24180fc34e"
+  },
+  "id": "Hmd46piN7DLEcC0G",
+  "tags": []
+}
