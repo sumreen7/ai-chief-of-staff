@@ -1,0 +1,469 @@
+{
+  "name": "Orchestrator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "schedule",
+        "options": {
+          "responseCode": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ce299d88-6c1a-4cb0-b3a9-492c1126d4dd",
+      "name": "Webhook",
+      "webhookId": "d2f7bc78-86a3-4527-8026-d89a26496dbc"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tasks",
+        "options": {
+          "responseCode": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        176
+      ],
+      "id": "d166bf60-c851-4d8e-866a-8d5f84e6f5e9",
+      "name": "Webhook1",
+      "webhookId": "0f220cb5-5225-4516-80fa-c27414271614"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "emails",
+        "options": {
+          "responseCode": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        352
+      ],
+      "id": "cc3ac43c-6542-4e13-b5fd-77b3225a504f",
+      "name": "Webhook2",
+      "webhookId": "879a51da-2a88-4bf1-8adc-df39d9c3f698"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "briefing",
+        "options": {
+          "responseCode": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        544
+      ],
+      "id": "aac012e3-f877-4c68-bf08-b9dc451523f2",
+      "name": "Webhook3",
+      "webhookId": "c180cd54-62fe-4ec7-b005-c55ea1aef744"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Hmd46piN7DLEcC0G",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/Hmd46piN7DLEcC0G"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        0
+      ],
+      "id": "69ce87b1-4b10-4248-86a2-b254c20202bc",
+      "name": "Call 'Calendar Agent'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ncokh8lISxuLV9ZX",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/ncokh8lISxuLV9ZX"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        176
+      ],
+      "id": "84efb37f-aad0-44cc-9fa6-5dcca3c20925",
+      "name": "Call 'Task Extraction Agent'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "F9Z3l7OTfADkDeVo",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/F9Z3l7OTfADkDeVo"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        352
+      ],
+      "id": "0c138817-ff6b-4115-8f8a-f877f4c4a1a0",
+      "name": "Call 'Email Triage Agent'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "BeHuPBLwljRqLTFj",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/BeHuPBLwljRqLTFj"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        544
+      ],
+      "id": "963370b3-8771-4a45-adf7-1a922dc4aedd",
+      "name": "Call 'Daily Briefing Agent'"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ff60fdf6-c4b9-4967-95de-ae8c37ffd8d4",
+              "name": "slack_user_id",
+              "value": "={{ $json.body.user_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        0
+      ],
+      "id": "a40ffb5c-808f-4b72-a8ea-b0149f170003",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab0017a4-5428-43d2-923e-50e90c2be2c7",
+              "name": "slack_user_id",
+              "value": "={{ $json.body.user_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        176
+      ],
+      "id": "bd6f89e9-e5db-4a7a-b3f6-3257c429a803",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7df9e0c-f3e6-4dc8-9984-fd963cc5d892",
+              "name": "slack_user_id",
+              "value": "={{ $json.body.user_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        352
+      ],
+      "id": "7c5170ae-d98f-48a0-b519-de8112ebd6f9",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8f954580-efb8-4fc0-87f6-9f86695f489a",
+              "name": "=slack_user_id",
+              "value": "={{ $json.body.user_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        544
+      ],
+      "id": "6a1cab30-f8fd-41ea-90ac-58f77766c60a",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "⏳ On it! You'll receive your results shortly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        224,
+        -112
+      ],
+      "id": "2ec364a0-16eb-4b2e-8e86-9cf7aba75401",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "⏳ On it! You'll receive your results shortly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        208,
+        96
+      ],
+      "id": "d00df7f4-69d1-4847-bfe2-6542d4739568",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "⏳ On it! You'll receive your results shortly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        224,
+        272
+      ],
+      "id": "2595b96c-ad78-4b76-80b0-223bf95a9195",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "⏳ On it! You'll receive your results shortly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        240,
+        448
+      ],
+      "id": "5c665bd5-7168-47a1-994b-30785d2827bf",
+      "name": "Respond to Webhook3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Call 'Calendar Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Call 'Task Extraction Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Call 'Email Triage Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Call 'Daily Briefing Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        []
+      ]
+    },
+    "Respond to Webhook2": {
+      "main": [
+        []
+      ]
+    },
+    "Respond to Webhook3": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "dcb3dfa8-b564-4be6-aa16-5153c21b98a2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d380d96394d0f1f4344b156faca73c3c76f8fa798ef405863508c43d97e10374"
+  },
+  "id": "JjsAJMzFxaw9OoCU",
+  "tags": []
+}
